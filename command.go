@@ -16,6 +16,7 @@ const (
 	CommandPoll                         = "000"
 	CommandStatusReport                 = "001"
 	CommandLogin                        = "005"
+	CommandSetTimeAndDate               = "010"
 	CommandPartitionArmControlAway      = "030"
 	CommandPartitionArmControlStay      = "031"
 	CommandPartitionArmControlZeroEntry = "032"

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 )
 
 type Panel interface {
@@ -12,7 +13,7 @@ type Panel interface {
 	Disconnect()
 	Arm(int, ArmMode) error
 	Disarm(int) error
-	// SetTime(time.Time) error
+	SetTime(time.Time) error
 	// Panic() error
 	OnZoneEvent(func(int, ZoneStatus))
 	OnPartitionEvent(func(int, PartitionStatus))
@@ -156,6 +157,7 @@ func (p *panel) Connect(host string, pwd string, code string) error {
 	p.wait = make(chan struct{})
 
 	<-p.wait
+	p.SetTime(time.Now())
 	p.ready = true
 	log.Println("Envisalink connection to security panel online")
 
@@ -199,6 +201,11 @@ func (p *panel) handleKeypad(status KeypadStatus) {
 	case p.wait <- struct{}{}:
 	default:
 	}
+}
+
+func (p *panel) SetTime(t time.Time) error {
+	data := t.Format("1504010206")
+	return p.conn.Send(Command{Code: CommandSetTimeAndDate, Data: data})
 }
 
 func (p *panel) Arm(partition int, mode ArmMode) error {
