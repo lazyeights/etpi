@@ -35,6 +35,7 @@ const (
 	CommandPartitionNotReady            = "651"
 	CommandPartitionArmed               = "652"
 	CommandPartitionDisarmed            = "655"
+	CommandPartitionAlarm               = "654"
 	CommandPartitionExitDelay           = "656"
 	CommandPartitionEntryDelay          = "657"
 	CommandPartitionBusy                = "673"

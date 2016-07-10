@@ -91,10 +91,10 @@ func (c *client) handle(p []byte) {
 			c.login()
 		}
 	case CommandZoneAlarm:
-		zone, _ := strconv.Atoi(cmd.Data)
+		zone, _ := strconv.Atoi(string(cmd.Data[1:4]))
 		c.handleZone(zone, ZoneStatusAlarm)
 	case CommandZoneTamper:
-		zone, _ := strconv.Atoi(cmd.Data)
+		zone, _ := strconv.Atoi(string(cmd.Data[1:4]))
 		c.handleZone(zone, ZoneStatusTamper)
 	case CommandZoneFault:
 		zone, _ := strconv.Atoi(cmd.Data)
@@ -130,6 +130,9 @@ func (c *client) handle(p []byte) {
 	case CommandPartitionDisarmed:
 		partition, _ := strconv.Atoi(cmd.Data)
 		c.handlePartition(partition, PartitionStatusDisarmed)
+	case CommandPartitionAlarm:
+		partition, _ := strconv.Atoi(cmd.Data)
+		c.handlePartition(partition, PartitionStatusAlarm)
 	case CommandPartitionExitDelay:
 		partition, _ := strconv.Atoi(cmd.Data)
 		c.handlePartition(partition, PartitionStatusExitDelay)
