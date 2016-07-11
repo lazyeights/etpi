@@ -19,6 +19,7 @@ type Panel interface {
 	OnPartitionEvent(func(int, PartitionStatus))
 	OnKeypadEvent(func(KeypadStatus))
 	Status() *PanelStatus
+	Poll() error
 }
 
 type ArmMode int
@@ -157,9 +158,14 @@ func (p *panel) Connect(host string, pwd string, code string) error {
 	p.wait = make(chan struct{})
 
 	<-p.wait
-	p.SetTime(time.Now())
+
+	t := time.Now()
+	log.Println("setting system time to", t.Format(time.Stamp))
+	if err := p.SetTime(t); err != nil {
+		log.Println("error:", err)
+	}
+
 	p.ready = true
-	log.Println("Envisalink connection to security panel online")
 
 	return nil
 }
@@ -243,4 +249,8 @@ func (p *panel) OnPartitionEvent(f func(int, PartitionStatus)) {
 
 func (p *panel) OnKeypadEvent(f func(KeypadStatus)) {
 	p.onKeypad = f
+}
+
+func (p *panel) Poll() error {
+	return p.conn.Status()
 }

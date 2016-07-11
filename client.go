@@ -3,6 +3,8 @@ package etpi
 import (
 	"bufio"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"log"
 	"net"
 	"strconv"
@@ -14,6 +16,7 @@ type Client interface {
 	Connect(string, string, string) error
 	Disconnect()
 	Send(Command) error
+	Status() error
 	HandleZoneState(func(int, ZoneStatus))
 	HandlePartitionState(func(int, PartitionStatus))
 	HandleKeypadState(func(KeypadStatus))
@@ -24,13 +27,14 @@ type client struct {
 	pwd  string
 	code string
 	sync.RWMutex
+	response        chan Command
 	handleZone      func(int, ZoneStatus)
 	handlePartition func(int, PartitionStatus)
 	handleKeypad    func(KeypadStatus)
 }
 
 func NewClient() Client {
-	return &client{}
+	return &client{response: make(chan Command)}
 }
 
 func (c *client) Connect(host string, pwd string, code string) error {
@@ -51,9 +55,57 @@ func (c *client) Disconnect() {
 	}
 }
 
+var ErrCommandError = errors.New("command error, bad checksum")
+var ErrAPICommandSyntaxError = errors.New("syntax error")
+var ErrAPICommandPartitionError = errors.New("requested partition is out of bounds")
+var ErrAPICommandNotSupported = errors.New("command not supported")
+var ErrAPISystemNotArmed = errors.New("system not armed")
+var ErrAPISystemNotReadytoArm = errors.New("system not ready, either not secure, in exit-delay, or already armed")
+var ErrAPICommandInvalidLength = errors.New("invalid length")
+var ErrAPIUserCodenotRequired = errors.New("user code not required")
+var ErrAPIInvalidCharacters = errors.New("invalid characters")
+
 func (c *client) Send(cmd Command) error {
 	log.Println("-> ", cmd)
-	return c.write(cmd)
+	err := c.write(cmd)
+	if err != nil {
+		return err
+	}
+	select {
+	case resp := <-c.response:
+		switch resp.Code {
+		case CommandAck:
+			return nil
+		case CommandCommandError:
+			return ErrCommandError
+		case CommandSystemError:
+			switch resp.Data {
+			case "000":
+				return nil
+			case "020":
+				return ErrAPICommandSyntaxError
+			case "021":
+				return ErrAPICommandPartitionError
+			case "022":
+				return ErrAPICommandNotSupported
+			case "023":
+				return ErrAPISystemNotArmed
+			case "024":
+				return ErrAPISystemNotReadytoArm
+			case "025":
+				return ErrAPICommandInvalidLength
+			case "026":
+				return ErrAPIUserCodenotRequired
+			case "027":
+				return ErrAPIInvalidCharacters
+			default:
+				return fmt.Errorf("unknwon system error %s", resp.Data)
+			}
+		}
+	case <-time.After(time.Second):
+	}
+
+	return errors.New("timeout awaiting response")
 }
 
 func (c *client) write(cmd Command) error {
@@ -79,14 +131,21 @@ func (c *client) handle(p []byte) {
 	if err != nil {
 		return
 	}
+	// log.Println("<- ", cmd)
 	switch cmd.Code {
-	case CommandAck:
+	case CommandAck, CommandCommandError, CommandSystemError:
+		go func() {
+			select {
+			case c.response <- *cmd:
+			default:
+			}
+		}()
 	case CommandLoginStatus:
 		switch cmd.Data[0] {
 		case '0', '2':
 			c.Disconnect()
 		case '1':
-			c.status()
+			c.Status()
 		case '3':
 			c.login()
 		}
@@ -155,8 +214,6 @@ func (c *client) handle(p []byte) {
 			Ready:     (state & 0x01) == 1,
 		}
 		c.handleKeypad(status)
-	case CommandTroubleOn, CommandTroubleOff:
-		// ignore
 	case CommandCodeRequired:
 		log.Println("code requested, sending response")
 		cmd := Command{Code: CommandCode, Data: c.code}
@@ -171,7 +228,7 @@ func (c *client) login() error {
 	return c.Send(cmd)
 }
 
-func (c *client) status() error {
+func (c *client) Status() error {
 	cmd := Command{Code: CommandStatusReport}
 	return c.Send(cmd)
 }
