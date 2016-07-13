@@ -82,6 +82,9 @@ func handlePartition(partition int, status string) {
 		return
 	}
 	switch status {
+	case "EXIT_DELAY":
+		acc.Security.SecuritySystemCurrentState.SetValue(characteristic.SecuritySystemCurrentStateDisarmed)
+		acc.Security.SecuritySystemTargetState.SetValue(characteristic.SecuritySystemTargetStateAwayArm)
 	case "DISARMED_READY",
 		"DISARMED":
 		acc.Security.SecuritySystemCurrentState.SetValue(characteristic.SecuritySystemCurrentStateDisarmed)
