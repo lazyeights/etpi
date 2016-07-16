@@ -41,6 +41,8 @@ $ mosquitto_pub -h pi.local:1883 -t "etpi/partition/1/command/arm_stay" -n
 
 It has dependencies on [the HomeControl library for HomeKit by brutella](https://github.com/brutella/hc) and [the MQTT library by Paho](https://github.com/eclipse/paho.mqtt.golang).
 
+Once running, `hkmqtt` advertises a new accessory named "Envisalink4". It is paired with a manual code "32191123".
+
 ## Usage
 
 ```go
