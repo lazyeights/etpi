@@ -1,5 +1,12 @@
 # Envisilink Alarm Server
 
+This is a libary to communicate with commercial alarm panels using the [Envisilink](http://www.eyezon.com) TPI interface. It currently only works with DSC alarm panels, but could be extended to support Honeywell panels as well.
+
+This is currently alpha-grade software. It has only been tested with an Envisalink4 module. 
+
+Documentation for the Envisalink TPI interface can be found [here](http://forum.eyez-on.com/FORUM/viewtopic.php?f=6&t=301).
+
+=======
 This is a libary to interface to commercial alarm panels using the Envisilink TPI. It currently only works with DSC alarm panels, but could be extended to support Honeywell panels as well.
 
 This is currently alpha-grade software. It has only been tested with an Envisalink4 module. 
