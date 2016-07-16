@@ -1,14 +1,14 @@
-# Envisilink Alarm Server
+# EnvisaLink Alarm Server
 
-This is a libary to communicate with commercial alarm panels using the [Envisilink](http://www.eyezon.com) TPI interface. It currently only works with DSC alarm panels, but could be extended to support Honeywell panels as well.
+This is a libary to communicate with commercial alarm panels using the [EnvisaLink](http://www.eyezon.com) TPI interface. It currently only works with DSC alarm panels, but could be extended to support Honeywell panels as well.
 
-This is currently alpha-grade software. It has only been tested with an Envisalink4 module. 
+This is currently alpha-grade software. It has only been tested with an EnvisaLink4 module. 
 
 Documentation for the Envisalink TPI interface can be found [here](http://forum.eyez-on.com/FORUM/viewtopic.php?f=6&t=301).
 
 ## MQTT and Apple HomeKit integration
 
-The library was designed with the single goal of integrating a DSC panel with Apple's HomeKit using an Envisilink4 module. There are more capabilities of the TPI interface that were not necessary for that goal, and have been left uncompleted so far.
+The library was designed with the single goal of integrating a DSC panel with Apple's HomeKit using an EnvisaLink4 module. There are more capabilities of the TPI interface that were not necessary for that goal, and have been left uncompleted so far.
 
 ![](doc/home_screenshot.png)
 
