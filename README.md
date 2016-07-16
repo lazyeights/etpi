@@ -6,11 +6,6 @@ This is currently alpha-grade software. It has only been tested with an Envisali
 
 Documentation for the Envisalink TPI interface can be found [here](http://forum.eyez-on.com/FORUM/viewtopic.php?f=6&t=301).
 
-=======
-This is a libary to interface to commercial alarm panels using the Envisilink TPI. It currently only works with DSC alarm panels, but could be extended to support Honeywell panels as well.
-
-This is currently alpha-grade software. It has only been tested with an Envisalink4 module. 
-
 ## MQTT and Apple HomeKit integration
 
 The library was designed with the single goal of integrating a DSC panel with Apple's HomeKit using an Envisilink4 module. There are more capabilities of the TPI interface that were not necessary for that goal, and have been left uncompleted so far.
