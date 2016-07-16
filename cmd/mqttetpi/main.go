@@ -10,17 +10,8 @@ import (
 
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/lazyeights/etpi"
-
-	"github.com/brutella/hc/accessory"
-	"github.com/brutella/hc/service"
 )
 
-type SecuritySystem struct {
-	*accessory.Accessory
-	Security *service.SecuritySystem
-}
-
-var acc *SecuritySystem
 var panel etpi.Panel
 var c mqtt.Client
 
