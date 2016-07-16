@@ -84,6 +84,7 @@ func TestClientLogin(t *testing.T) {
 	c := NewClient().(*client)
 	c.conn = conn.Client
 	c.pwd = "user"
+	go c.listen()
 	var w sync.WaitGroup
 	w.Add(1)
 	go func() {
@@ -92,6 +93,8 @@ func TestClientLogin(t *testing.T) {
 		if err != nil || bytes.Compare(line, []byte("005user54\r\n")) != 0 {
 			t.Error(err, line)
 		}
+		time.Sleep(50 * time.Millisecond)
+		Command{Code: CommandAck}.WriteTo(conn.Server)
 		w.Done()
 	}()
 	err := c.login()

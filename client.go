@@ -131,15 +131,13 @@ func (c *client) handle(p []byte) {
 	if err != nil {
 		return
 	}
-	// log.Println("<- ", cmd)
+	log.Println("<-  ", *cmd)
 	switch cmd.Code {
 	case CommandAck, CommandCommandError, CommandSystemError:
-		go func() {
-			select {
-			case c.response <- *cmd:
-			default:
-			}
-		}()
+		select {
+		case c.response <- *cmd:
+		default:
+		}
 	case CommandLoginStatus:
 		switch cmd.Data[0] {
 		case '0', '2':
