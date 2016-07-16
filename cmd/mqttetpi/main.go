@@ -31,12 +31,12 @@ const (
 
 const endPoints = `
     States (read-only, retained):
-    etpi/[addr]/partition/[number]/state
+    etpi/partition/[number]/state
 
     Commands (write-only):
-    etpi/[addr]/partition/1/command/arm_stay
-    etpi/[addr]/partition/1/command/arm_away
-    etpi/[addr]/partition/1/command/arm_disarm
+    etpi/partition/1/command/arm_stay
+    etpi/partition/1/command/arm_away
+    etpi/partition/1/command/arm_disarm
 `
 
 func init() {
@@ -51,7 +51,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	fmt.Println("mqttepi version 0.0.0 type \"-h\" for help")
+	fmt.Println("mqttepi version", version, "type \"-h\" for help")
 
 	sigch := make(chan os.Signal)
 	signal.Notify(sigch, syscall.SIGINT, syscall.SIGTERM)

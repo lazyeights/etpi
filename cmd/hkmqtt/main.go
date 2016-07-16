@@ -29,7 +29,7 @@ func init() {
 
 func main() {
 	flag.Parse()
-	fmt.Println("hkmqtt version 0.0.0 type \"-h\" for help")
+	fmt.Println("hkmqtt version", version, "type \"-h\" for help")
 
 	info := accessory.Info{
 		Name:         "Envisalink4",

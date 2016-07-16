@@ -8,17 +8,63 @@ import (
 	"time"
 )
 
+// Panel is the primary interface for connecting to an alarm panel with the Envisalink TPI module.
+//
+// Usage:
+//
+//     import "github.com/lazyeights/etpi"
+//
+//     etpiAddr := "192.168.1.24:4025"
+//     pwd := "user"
+//     code := "12345"
+//
+//     panel := etpi.NewPanel()
+//     panel.OnZoneEvent(handleZone)
+//     panel.OnPartitionEvent(handlePartition)
+//     panel.OnKeypadEvent(handleKeypad)
+//
+//     if err := panel.Connect(etpiAddr, pwd, code); err != nil {
+//     	panic("could not connect to Envisalink")
+//     }
+//     defer panel.Disconnect()
+//
+//     status := panel.Status()
+//     fmt.Printf("%+v\n", status)
+//
 type Panel interface {
-	Connect(string, string, string) error
+
+	// Connect opens the connection to the Envisalink panel, logs in using
+	// the supplied password, and upon a successful connection will set the
+	// correct date/time of the alarm system.
+	Connect(host string, pwd string, code string) error
+
+	// Disconnect closes the connection to the Envisalink panel.
 	Disconnect()
-	Arm(int, ArmMode) error
-	Disarm(int) error
+
+	// Arm attempts to arm a partition according to the supplied mode
+	// (e.g., Stay, Away).
+	Arm(partition int, mode ArmMode) error
+
+	// Disarm attempts to disarm a partition.
+	Disarm(partition int) error
+
+	// SetTime sets the time for the alarm panel.
 	SetTime(time.Time) error
-	// Panic() error
-	OnZoneEvent(func(int, ZoneStatus))
+
+	// OnPartitionEvent sets a calledback for whenever a partition event
+	// occurs.
 	OnPartitionEvent(func(int, PartitionStatus))
+
+	// OnZoneEvent sets a calledback for whenever a zone event occurs.
+	OnZoneEvent(func(int, ZoneStatus))
+
+	// OnKeypadEvent sets a callback for whenever a keypad event occurs.
 	OnKeypadEvent(func(KeypadStatus))
+
+	// Status returns the current partition, zone, and keypad status.
 	Status() *PanelStatus
+
+	// Poll queries the Envisalink module to send its latest update.
 	Poll() error
 }
 
@@ -135,6 +181,7 @@ type panel struct {
 	onKeypad    func(KeypadStatus)
 }
 
+// NewPanel creates a new Panel interface.
 func NewPanel() Panel {
 	status := &PanelStatus{
 		Zone:      make([]ZoneStatus, 64),
