@@ -1,5 +1,7 @@
 # EnvisaLink Alarm Server
 
+![](https://travis-ci.org/lazyeights/etpi.svg?branch=master)
+
 This is a libary to communicate with commercial alarm panels using the [EnvisaLink](http://www.eyezon.com) TPI interface. It currently only works with DSC alarm panels, but could be extended to support Honeywell panels as well.
 
 This is currently alpha-grade software. It has only been tested with an EnvisaLink4 module. 
