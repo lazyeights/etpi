@@ -1,14 +1,16 @@
-# Envisilink Alarm Server
+# EnvisaLink Alarm Server
 
-This is a libary to communicate with commercial alarm panels using the [Envisilink](http://www.eyezon.com) TPI interface. It currently only works with DSC alarm panels, but could be extended to support Honeywell panels as well.
+![](https://travis-ci.org/lazyeights/etpi.svg?branch=master)
 
-This is currently alpha-grade software. It has only been tested with an Envisalink4 module. 
+This is a libary to communicate with commercial alarm panels using the [EnvisaLink](http://www.eyezon.com) TPI interface. It currently only works with DSC alarm panels, but could be extended to support Honeywell panels as well.
+
+This is currently alpha-grade software. It has only been tested with an EnvisaLink4 module. 
 
 Documentation for the Envisalink TPI interface can be found [here](http://forum.eyez-on.com/FORUM/viewtopic.php?f=6&t=301).
 
 ## MQTT and Apple HomeKit integration
 
-The library was designed with the single goal of integrating a DSC panel with Apple's HomeKit using an Envisilink4 module. There are more capabilities of the TPI interface that were not necessary for that goal, and have been left uncompleted so far.
+The library was designed with the single goal of integrating a DSC panel with Apple's HomeKit using an EnvisaLink4 module. There are more capabilities of the TPI interface that were not necessary for that goal, and have been left uncompleted so far.
 
 ![](doc/home_screenshot.png)
 
@@ -40,6 +42,8 @@ $ mosquitto_pub -h pi.local:1883 -t "etpi/partition/1/command/arm_stay" -n
 `hkmqtt` utility is a bridge between the MQTT broker and Apple HomeKit to implement a SecuritySystem service for the Envisalink module.
 
 It has dependencies on [the HomeControl library for HomeKit by brutella](https://github.com/brutella/hc) and [the MQTT library by Paho](https://github.com/eclipse/paho.mqtt.golang).
+
+Once running, `hkmqtt` advertises a new accessory named "Envisalink4". It is paired with a manual code "32191123".
 
 ## Usage
 

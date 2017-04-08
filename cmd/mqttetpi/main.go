@@ -118,6 +118,10 @@ func main() {
 			if err := panel.Poll(); err != nil {
 				fmt.Println("error:", err)
 			}
+			fmt.Println("Setting current system time...")
+			if err := panel.SetTime(time.Now()); err != nil {
+				fmt.Println("error:", err)
+			}
 			timer.Reset(pollDuration)
 		}
 	}
