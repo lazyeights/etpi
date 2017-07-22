@@ -1,18 +1,20 @@
-## Deployment to a Raspberry Pi
+## Deployment to a Raspberry Pi 3
 
-It is more convenient to cross compile to the Raspberry Pi platform hardware rather than installing go on the Pi and compiling locally on that machine. Cross compiling reduces wear and tear on the Pi's SD card and is much, much quicker. To cross compile to the Raspbery Pi's ARM architecture:
+> NOTE: The EnvisaLink interface does not communicate over a secure channel such as 
+
+It is more convenient to cross compile to the Raspberry Pi platform hardware rather than installing go on the Pi and compiling locally on that machine. Cross compiling reduces wear and tear on the Pi's SD card and is much, much quicker. To cross compile to the Raspbery Pi 3's ARM architecture:
 ```
-$ cd mqttetpi
-$ env GOOS=linux GOARCH=arm GOARM=5 go build -v -o ./mqttetpi-linux-arm5
+$ cd etpid
+$ env GOOS=linux GOARCH=arm GOARM=7 go build -v -o ./etpid-linux-arm7
 ```
 
-This creates two executable `mqttetpi-linux-arm5`. Repeat for the `hkmqtt` utility to generate `hkmqtt-linux-arm5`.
+This creates the executable `etpid-linux-arm7`. 
 
-Note that the `GOARM=5` setting tells the compiler to use a legacy ARM architecture for older Pis that do not have hardware floating point support. It may not be necessary on newer models of Raspberry Pi. 
+Alternatively, using the `GOARM=5` setting tells the compiler to use a legacy ARM architecture for older Pis that do not have hardware floating point support. It may not be necessary on newer models of Raspberry Pi. 
 
 For more information on cross compiling Go to ARM systems, see [https://github.com/golang/go/wiki/GoArm](https://github.com/golang/go/wiki/GoArm).
 
-If you have not prepared the destination location for the Pi, open a secure shell to the Raspberry Pi and create it.
+The `etpid` command must be installed in a path where it has write access as it needs to create a "db" subfolder to maintain storage for the HomeKit interface. If you have not prepared the destination location for the Pi, open a secure shell to the Raspberry Pi and create it.
 (Note: replace `pi@pi.local` with the appropriate `<user account>:<IP address>` for your machine).
 
 ```
@@ -28,16 +30,8 @@ You can then deploy the executable to the Raspberry Pi with the secure copy comm
 
 ```
 $ cd ..
-$ scp mqttetpi-linux-arm5 pi@pi.local:etpi/mqttetpi-linux-arm5
+$ scp etpid-linux-arm7 pi@pi.local:etpi/etpid-linux-arm7
 ```
-
-Repeat for `hkmqtt-linux-arm5`.
-
-## Set up an MQTT broker
-
-You must point the utilities to an MQTT broker. Although there are some cloud services that provide this, I want to keep mine on my local network so I set one up on the Raspberry Pi. I like [mosquitto](mosquitto.org).
-
-See [Installing Mosquitto on a Raspberry Pi](http://jpmens.net/2013/09/01/installing-mosquitto-on-a-raspberry-pi/) for instructions.
 
 ## Setting up a reliable service on the Raspberry Pi
 
@@ -50,29 +44,35 @@ sudo apt-get install supervisor
 Add the following lines to the configuration file. The default location from the Raspian package is at `/etc/supervisor/supervisord.conf`
 
 ```
-[program:hkmqtt]
-command=/usr/home/pi/etpi/hkmqtt-linux-arm5 -mqtt localhost:1883
+[program:etpid]
+command=/usr/home/pi/etpi/etpid-linux-arm7 -p 192.168.1.100:4025
 user=pi
+directory=/user/home/pi/etpi
 
 [program:mqttetpi]
 command=/usr/home/pi/etpi/mqttetpi-linux-arm5 -mqtt localhost:1883 -etpi -partitions 1 -zones 5 -pwd "user" -code "12345"
 user=pi
 ```
 
-Note above that you will need to provide the correct addresses for the MQTT and Envisalink services. You will also need to provide the number of zones and partitions in your system, as well as the correct Envisalink password (default is "user") and a user code for your alarm panel.
+Note above that you will need to provide the correct addresses for the EnvisaLink TPI service. You will need to provide the correct Envisalink password (default is "user") and a proper user code for your alarm panel.
 
 `supervisord` can be controlled using a command line utility. You'll need to reload it to start the processes you just added to the configuration.
 
 ```
 pi@pi:~ $ sudo supervisorctl
 supervisor> avail
-hkmqtt                        in use    auto      999:999
-mqttetpi                        in use    auto      999:999
+etpid                        in use    auto      999:999
 supervisor> reload
 Really restart the remote supervisord process y/N? 
 supervisor> status
-hkmqtt                        RUNNING    pid 5258, uptime 0:01:58
-mqttetpi                      RUNNING    pid 5259, uptime 0:01:58
+etpid                      RUNNING    pid 5259, uptime 0:01:58
+```
+
+`supervisord` also has a web interface that can be enabled by adding the following to `/etc/supervisor/supervisord.conf`:
+
+```
+[inet_http_server]
+port = :9001
 ```
 
 

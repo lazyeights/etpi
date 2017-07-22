@@ -2,48 +2,27 @@
 
 ![](https://travis-ci.org/lazyeights/etpi.svg?branch=master)
 
-This is a libary to communicate with commercial alarm panels using the [EnvisaLink](http://www.eyezon.com) TPI interface. It currently only works with DSC alarm panels, but could be extended to support Honeywell panels as well.
+This is a libary to communicate with commercial alarm panels using the [EnvisaLink](http://www.eyezon.com) TPI interface. It currently only works with DSC alarm panels
 
 This is currently alpha-grade software. It has only been tested with an EnvisaLink4 module. 
 
 Documentation for the Envisalink TPI interface can be found [here](http://forum.eyez-on.com/FORUM/viewtopic.php?f=6&t=301).
 
-## MQTT and Apple HomeKit integration
+## Apple HomeKit integration
 
-The library was designed with the single goal of integrating a DSC panel with Apple's HomeKit using an EnvisaLink4 module. There are more capabilities of the TPI interface that were not necessary for that goal, and have been left uncompleted so far.
+The library was designed with the goal of integrating a DSC panel with Apple's HomeKit using an EnvisaLink4 module. There are more capabilities of the TPI interface that were not necessary for that goal, and have been left uncompleted so far.
 
 ![](doc/home_screenshot.png)
 
-The repository includes two utilities that employ the library, `mqttetpi` and `hkmqtt`. Instructions for one way to set up a Raspberry Pi with these utilities can be found here: [Deployment to a Raspberry Pi](cmd/README.md)
+The repository includes one command that employ the library, `etpid`. Instructions for one way to set up a Raspberry Pi with these utilities can be found here: [Deployment to a Raspberry Pi](cmd/README.md)
 
-### [cmd/mqttetpi](cmd/mqttetpi)
+### [cmd/etpid](cmd/etpid)
 
-This utility is is a bridge between an MQTT broker and the Envisalink module, so that it can be integrated with any other system that uses MQTT. Partition state events (e.g., READY, EXIT_DELAY, ARMED) are exported on a topic. The partition can also be armed and disarmed.
+`etpid` utility is a bridge between the EnvisaLink panel and Apple HomeKit to implement a SecuritySystem servicee.
 
-```
-States (read-only):
-etpi/partition/[number]/state
+It has a dependency on [the HomeControl library for HomeKit by brutella](https://github.com/brutella/hc).
 
-Commands (write-only):
-etpi/partition/1/command/arm_stay
-etpi/partition/1/command/arm_away
-etpi/partition/1/command/arm_disarm
-```
-
-It has only one dependency on [the MQTT library by Paho](https://github.com/eclipse/paho.mqtt.golang).
-
-Here is an example using the `mosquitto` utility to arm the partition (an MQTT broker is running on a local Raspberry Pi):
-```
-$ mosquitto_pub -h pi.local:1883 -t "etpi/partition/1/command/arm_stay" -n
-```
-
-### [cmd/hkmqtt](cmd/hkmqtt)
-
-`hkmqtt` utility is a bridge between the MQTT broker and Apple HomeKit to implement a SecuritySystem service for the Envisalink module.
-
-It has dependencies on [the HomeControl library for HomeKit by brutella](https://github.com/brutella/hc) and [the MQTT library by Paho](https://github.com/eclipse/paho.mqtt.golang).
-
-Once running, `hkmqtt` advertises a new accessory named "Envisalink4". It is paired with a manual code "32191123".
+Once running, `etpid` advertises a new accessory named "EnvisaLink". It is paired with a manual code "32191123".
 
 ## Usage
 

@@ -37,6 +37,27 @@ func NewClient() Client {
 	return &client{response: make(chan Command)}
 }
 
+// Connect opens a connection to an Envisalink device.
+//
+// The Envisalink acts as a server for the TCP connection and the user
+// application is the client. The Envisalink listens on port 4025 and will only
+// accept one client connection on that port. Any subsequent connections will be
+// denied. The Envisalink will close the connection if the client closes its
+// side.
+//
+// To initiate a connection, the application must first start a session by
+// establishing a TCP socket. Once established the TPI will send a 5053 command
+// (See section 3.0 for a detailed description of the protocol) requesting a
+// session password. The client should then, within 10 seconds, send 005 login
+// request. The 005 command contains the password which is the same password to
+// log into the Envisalink's local web page. Upon successful login, the
+// Envisalink's TPI will respond with the session status command, 505, and
+// whether the password was accepted or rejected. If a password is not received
+// within 10 seconds, the TPI will issue a 5052 command and close the TCP
+// socket. The socket will also be closed if the password fails. Once the
+// password is accepted, the session is created and will continue until the TCP
+// connection is dropped.
+//
 func (c *client) Connect(host string, pwd string, code string) error {
 	conn, err := net.DialTimeout("tcp", host, time.Second)
 	if err != nil {
@@ -66,7 +87,7 @@ var ErrAPIUserCodenotRequired = errors.New("user code not required")
 var ErrAPIInvalidCharacters = errors.New("invalid characters")
 
 func (c *client) Send(cmd Command) error {
-	log.Println("-> ", cmd)
+	log.Println("->", cmd)
 	err := c.write(cmd)
 	if err != nil {
 		return err
@@ -99,7 +120,7 @@ func (c *client) Send(cmd Command) error {
 			case "027":
 				return ErrAPIInvalidCharacters
 			default:
-				return fmt.Errorf("unknwon system error %s", resp.Data)
+				return fmt.Errorf("unknown system error %s", resp.Data)
 			}
 		}
 	case <-time.After(time.Second):
@@ -131,7 +152,7 @@ func (c *client) handle(p []byte) {
 	if err != nil {
 		return
 	}
-	log.Println("<-  ", *cmd)
+	log.Println("<-", *cmd)
 	switch cmd.Code {
 	case CommandAck, CommandCommandError, CommandSystemError:
 		select {
@@ -140,10 +161,14 @@ func (c *client) handle(p []byte) {
 		}
 	case CommandLoginStatus:
 		switch cmd.Data[0] {
+		// 0 = Password provided was incorrect
+		// 2 = Time out. You did not send a password within 10 seconds.
 		case '0', '2':
 			c.Disconnect()
+		// 1 = Password Correct, session established
 		case '1':
 			c.Status()
+		// 3 = Request for password, sent after socket setup
 		case '3':
 			c.login()
 		}
@@ -216,6 +241,7 @@ func (c *client) handle(p []byte) {
 		log.Println("code requested, sending response")
 		cmd := Command{Code: CommandCode, Data: c.code}
 		c.Send(cmd)
+	case CommandTroubleOff:
 	default:
 		log.Printf("error: APICommandNotSupported: %v\n", cmd)
 	}

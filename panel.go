@@ -229,7 +229,6 @@ func (p *panel) Status() *PanelStatus {
 }
 
 func (p *panel) handleZone(zone int, status ZoneStatus) {
-	log.Println("zone:", zone, status)
 	p.status.Zone[zone-1] = status
 	if p.ready && p.onZone != nil {
 		p.onZone(zone, status)
@@ -237,7 +236,6 @@ func (p *panel) handleZone(zone int, status ZoneStatus) {
 }
 
 func (p *panel) handlePartition(partition int, status PartitionStatus) {
-	log.Println("partition:", partition, status)
 	p.status.Partition[partition-1] = status
 	if p.ready && p.onPartition != nil {
 		p.onPartition(partition, status)
@@ -245,7 +243,6 @@ func (p *panel) handlePartition(partition int, status PartitionStatus) {
 }
 
 func (p *panel) handleKeypad(status KeypadStatus) {
-	log.Printf("keypad: %+v\n", status)
 	p.status.Keypad = status
 	if p.ready && p.onKeypad != nil {
 		p.onKeypad(status)

@@ -7,11 +7,6 @@ import (
 	"io"
 )
 
-type Command struct {
-	Code string
-	Data string
-}
-
 const (
 	CommandPoll                         = "000"
 	CommandStatusReport                 = "001"
@@ -45,6 +40,82 @@ const (
 	CommandTroubleOff                   = "841"
 	CommandCodeRequired                 = "900"
 )
+
+type Command struct {
+	Code string
+	Data string
+}
+
+func (c Command) String() string {
+	var str string
+	switch c.Code {
+	case "000":
+		str = "Poll"
+	case "001":
+		str = "StatusReport"
+	case "005":
+		str = "Login"
+	case "010":
+		str = "SetTimeAndDate"
+	case "030":
+		str = "PartitionArmControlAway"
+	case "031":
+		str = "PartitionArmControlStay"
+	case "032":
+		str = "PartitionArmControlZeroEntry"
+	case "040":
+		str = "PartitionDisarmControl"
+	case "200":
+		str = "Code"
+	case "500":
+		str = "ACK"
+	case "501":
+		str = "Error"
+	case "502":
+		str = "SystemError"
+	case "505":
+		str = "LoginStatus"
+	case "510":
+		str = "KeypadLed"
+	case "601":
+		str = "ZoneAlarm"
+	case "603":
+		str = "ZoneTamper"
+	case "605":
+		str = "ZoneFault"
+	case "609":
+		str = "ZoneOpen"
+	case "610":
+		str = "ZoneRestored"
+	case "650":
+		str = "PartitionReady"
+	case "651":
+		str = "PartitionNotReady"
+	case "652":
+		str = "PartitionArmed"
+	case "655":
+		str = "PartitionDisarmed"
+	case "654":
+		str = "PartitionAlarm"
+	case "656":
+		str = "PartitionExitDelay"
+	case "657":
+		str = "PartitionEntryDelay"
+	case "673":
+		str = "PartitionBusy"
+	case "701":
+		str = "PartitionSpecialClosing"
+	case "840":
+		str = "TroubleOn"
+	case "841":
+		str = "TroubleOff"
+	case "900":
+		str = "CodeRequired"
+	default:
+		str = "UNKNOWN"
+	}
+	return fmt.Sprintf("{%s : %s : %s}", c.Code, str, c.Data)
+}
 
 func NewCommandFromBytes(p []byte) (*Command, error) {
 	if len(p) < 7 {
