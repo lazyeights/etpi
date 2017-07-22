@@ -72,7 +72,9 @@ etpid                      RUNNING    pid 5259, uptime 0:01:58
 
 ```
 [inet_http_server]
-port = :9001
+port = localhost:9001
+username = user # Basic auth username (optional)
+password = pass # Basic auth password (optional)
 ```
 
 
