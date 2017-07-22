@@ -30,7 +30,10 @@ type SecuritySystem struct {
 var acc *SecuritySystem
 
 func main() {
-	cli.HelpFlag.Name = "help"
+	cli.HelpFlag = cli.BoolFlag{
+		Name:  "help",
+		Usage: "show help",
+	}
 	app := cli.NewApp()
 	app.Name = "etpid"
 	app.Usage = "EnvisaLink Third Party Interface (TPI) gateway"
