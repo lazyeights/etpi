@@ -14,7 +14,7 @@ The library was designed with the goal of integrating a DSC panel with Apple's H
 
 ![](doc/home_screenshot.png)
 
-The repository includes one command that employ the library, `etpid`. Instructions for one way to set up a Raspberry Pi with these utilities can be found here: [Deployment to a Raspberry Pi](cmd/README.md)
+The repository includes one command that employ the library, `etpid`. Instructions for one way to set up a Raspberry Pi with these utilities can be found here: [Deployment to a Raspberry Pi](cmd/etpid/README.md)
 
 ### [cmd/etpid](cmd/etpid)
 

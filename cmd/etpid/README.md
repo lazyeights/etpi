@@ -1,6 +1,6 @@
 ## Deployment to a Raspberry Pi 3
 
-> NOTE: The EnvisaLink interface does not communicate over a secure channel such as 
+> NOTE: The EnvisaLink TPI interface does not communicate over a secure channel.
 
 It is more convenient to cross compile to the Raspberry Pi platform hardware rather than installing go on the Pi and compiling locally on that machine. Cross compiling reduces wear and tear on the Pi's SD card and is much, much quicker. To cross compile to the Raspbery Pi 3's ARM architecture:
 ```
