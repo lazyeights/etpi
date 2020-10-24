@@ -25,6 +25,7 @@ var pollDuration time.Duration
 type SecuritySystem struct {
 	*accessory.Accessory
 	Security *service.SecuritySystem
+	Zone1    *service.ContactSensor
 }
 
 var acc *SecuritySystem
@@ -63,12 +64,6 @@ func main() {
 					Destination: &etpiAddr,
 				},
 				cli.DurationFlag{
-					Name:        "zones, z",
-					Usage:       "Number of zones to enable",
-					Value:       10 * time.Minute,
-					Destination: &pollDuration,
-				},
-				cli.DurationFlag{
 					Name:        "poll",
 					Usage:       "Polling status frequency",
 					Value:       10 * time.Minute,
@@ -94,6 +89,7 @@ func handleRun(c *cli.Context) error {
 	// Connect to EnvisaLink panel
 	panel = etpi.NewPanel()
 	panel.OnPartitionEvent(handlePartition)
+	panel.OnZoneEvent(handleZone)
 	log.Println("Connecting to Envisalink connection to security panel at", etpiAddr)
 	if err := panel.Connect(etpiAddr, pwd, code); err != nil {
 		log.Println("error: could not connect to Envisalink at", err)
@@ -103,7 +99,7 @@ func handleRun(c *cli.Context) error {
 	status := panel.Status()
 	handlePartition(1, status.Partition[0])
 
-	// Setup HomeKit accessory
+	// Setup HomeKit Alarm accessory
 	acc = &SecuritySystem{
 		Accessory: accessory.New(accessory.Info{
 			Name:         "EnvisaLink",
@@ -112,12 +108,15 @@ func handleRun(c *cli.Context) error {
 			Model:        "EnvisaLink3/4",
 		}, accessory.TypeSecuritySystem),
 		Security: service.NewSecuritySystem(),
+		Zone1:    service.NewContactSensor(),
 	}
 	acc.Security.SecuritySystemCurrentState.SetValue(characteristic.SecuritySystemCurrentStateDisarmed)
 	acc.Security.SecuritySystemTargetState.SetValue(characteristic.SecuritySystemTargetStateDisarm)
 	acc.Security.SecuritySystemTargetState.OnValueRemoteUpdate(updateTargetState)
 	acc.AddService(acc.Security.Service)
+	acc.AddService(acc.Zone1.Service)
 
+	// Setup HomeKit IP Transport
 	config := hc.Config{
 		Pin:         "32191123",
 		StoragePath: "db",
@@ -176,6 +175,21 @@ func handlePartition(partition int, status etpi.PartitionStatus) {
 		acc.Security.SecuritySystemTargetState.SetValue(characteristic.SecuritySystemTargetStateStayArm)
 	case etpi.PartitionStatusAlarm:
 		acc.Security.SecuritySystemCurrentState.SetValue(characteristic.SecuritySystemCurrentStateAlarmTriggered)
+	}
+}
+
+func handleZone(zone int, status etpi.ZoneStatus) {
+	if acc == nil {
+		return
+	}
+	if zone != 1 {
+		return
+	}
+	switch status {
+	case etpi.ZoneStatusOpen:
+		acc.Zone1.ContactSensorState.SetValue(characteristic.ContactSensorStateContactNotDetected)
+	case etpi.ZoneStatusRestored:
+		acc.Zone1.ContactSensorState.SetValue(characteristic.ContactSensorStateContactDetected)
 	}
 }
 
